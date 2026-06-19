@@ -1,26 +1,21 @@
-test "kv_正常写入读取" {
-  let r = run_kv_demo(42L)
+test "kv_网络模式_正常写入" {
+  let r = run_kv_on_network(42L)
   @test.assert_eq(r, "通过")
 }
 
-test "kv_确定性_同种子" {
-  let r1 = run_kv_demo(100L)
-  let r2 = run_kv_demo(100L)
-  @test.assert_eq(r1, r2)
+test "kv_网络模式_确定性" {
+  @test.assert_eq(run_kv_on_network(100L), run_kv_on_network(100L))
 }
 
-test "kv_不同种子可能不同" {
-  let r1 = run_kv_demo(100L)
-  let r2 = run_kv_demo(200L)
-  // 结果应该都是"通过"（不变性保持），即便执行路径可能不同
-  @test.assert_eq(r1.contains("通过"), true)
-  @test.assert_eq(r2.contains("通过"), true)
+test "kv_网络模式_不同种子均通过" {
+  for s = 1L; s < 10L; s = s + 1L {
+    @test.assert_eq(run_kv_on_network(s), "通过")
+  }
 }
 
-test "kv_崩溃后重新选举" {
-  // 多次运行验证崩溃后总能选出新主
-  for seed = 1L; seed < 10L; seed = seed + 1L {
-    let r = run_kv_demo(seed)
-    @test.assert_eq(r, "通过")
+test "kv_网络模式_崩溃恢复正确" {
+  for s = 1L; s < 20L; s = s + 2L {
+    let r = run_kv_on_network(s)
+    @test.assert_eq(r.contains("异常"), false)
   }
 }

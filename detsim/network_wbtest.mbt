@@ -37,7 +37,7 @@ test "network_节点隔离" {
   let net = net.add_node("a")
   let net = net.isolate_node("a")
   match net.node_status("a") {
-    Some(s) => {} // 确认状态已变更
+    Some(_) => () // 确认状态已变更
     None => abort("节点应存在")
   }
 }

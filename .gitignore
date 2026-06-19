@@ -1,0 +1,14 @@
+# MoonBit 构建产物
+/_build/
+*.wasm
+*.wat
+*.core
+*.mi
+
+# IDE 配置
+.vscode/
+.idea/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

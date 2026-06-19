@@ -135,3 +135,30 @@ pub fn SimNetwork::deliver_pending(self : SimNetwork, clock : SimClock) -> (SimN
 pub fn SimNetwork::messages_in_flight(self : SimNetwork) -> Int {
   self.outbox.length()
 }
+
+/// 批量添加节点。
+pub fn SimNetwork::add_nodes(self : SimNetwork, ids : Array[String]) -> SimNetwork {
+  let mut net = self
+  for id in ids { net = net.add_node(id) }
+  net
+}
+
+/// 在两节点间设置双向链路。
+pub fn SimNetwork::set_bidir_link(self : SimNetwork, a : String, b : String, config : SimLinkConfig) -> SimNetwork {
+  self.set_link(a, b, config).set_link(b, a, config)
+}
+
+/// 节点数量。
+pub fn SimNetwork::node_count(self : SimNetwork) -> Int {
+  self.nodes.length()
+}
+
+/// 已投递消息数量。
+pub fn SimNetwork::delivered_count(self : SimNetwork) -> Int {
+  self.delivered.length()
+}
+
+/// 断开某节点所有连接（模拟节点崩溃）。
+pub fn SimNetwork::isolate_node(self : SimNetwork, node_id : String) -> SimNetwork {
+  self.set_node_status(node_id, NodeStatus::Stopped)
+}

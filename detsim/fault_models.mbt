@@ -75,12 +75,36 @@ pub fn no_process_faults() -> ProcessFaultConfig {
   ProcessFaultConfig::{ crash_probability_per_second: 0.0 }
 }
 
-/// 检查当前时间是否存在活跃的进程故障，返回更新后的 RNG 和故障列表。
+/// 检查当前时间是否存在活跃的进程故障。
 pub fn active_process_faults(
   config : ProcessFaultConfig,
   rng : SimRng,
 ) -> (SimRng, Array[ProcessFault]) {
   let faults : Array[ProcessFault] = Array::new()
-  let (rng, _roll) = rng.next_double()
+  let (rng, roll) = rng.next_double()
+  if config.crash_probability_per_second > 0.0 && roll < config.crash_probability_per_second {
+    faults.push(ProcessFault::Crash("随机节点"))
+  }
   (rng, faults)
+}
+
+/// 模拟存储故障 —— 根据配置决定写入是否成功。
+pub fn simulate_storage_fault(
+  config : StorageFaultConfig,
+  rng : SimRng,
+) -> (SimRng, Bool) {
+  if config.disk_full { return (rng, false) }
+  let (rng, roll) = rng.next_double()
+  let ok = roll >= config.corruption_probability
+  (rng, ok)
+}
+
+/// 模拟时钟故障 —— 返回经过故障修正后的时间。
+pub fn simulate_clock_fault(
+  config : ClockFaultConfig,
+  current_time : Int64,
+  rng : SimRng,
+) -> (SimRng, Int64) {
+  let time = apply_clock_faults(config, current_time)
+  (rng, time)
 }
